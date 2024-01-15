@@ -110,6 +110,7 @@
     "yjs": "^13.5.40"
   },
   "dependencies": {
+    "@playwright/test": "^1.40.1",
     "@typescript-eslint/eslint-plugin": "~5.55.0",
     "@typescript-eslint/parser": "~5.55.0",
     "eslint": "~8.36.0",
@@ -126,6 +127,7 @@
     "stylelint-prettier": "^4.0.0"
   },
   "devDependencies": {
+    "@jupyterlab/galata": "workspace:^",
     "lerna": "^7.1.4",
     "typedoc": "~0.24.7",
     "typedoc-plugin-mdn-links": "^3.0.3"

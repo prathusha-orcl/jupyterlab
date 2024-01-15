@@ -105,6 +105,8 @@ test.describe('Benchmark', () => {
       const perf = galata.newPerformanceHelper(page);
 
       await page.goto(baseURL + '?reset');
+   //   await page.waitForTimeout(120000);
+    //  await page.waitForSelector('#filebrowser >> .jp-BreadCrumbs-home', {timeout: 120000});
 
       await page.click('#filebrowser >> .jp-BreadCrumbs-home');
       await page.dblclick(`#filebrowser >> text=${tmpPath}`);
@@ -112,30 +114,35 @@ test.describe('Benchmark', () => {
       const openTime = await perf.measure(async () => {
         // Open the notebook and wait for the spinner
         await Promise.all([
-          page.waitForSelector('[role="main"] >> .jp-SpinnerContent'),
+          page.waitForSelector('.jp-SpinnerContent'),
           page.dblclick(`#filebrowser >> text=${file}`)
         ]);
 
-        // Wait for spinner to be hidden
+      //   Wait for spinner to be hidden
         await page.waitForSelector('[role="main"] >> .jp-SpinnerContent', {
           state: 'hidden'
         });
       });
 
       // Check the notebook is correctly opened
-      let panel = await page.$('[role="main"] >> .jp-NotebookPanel');
+      let panel = await page.$('.jp-NotebookPanel');
       // Get only the document node to avoid noise from kernel and debugger in the toolbar
       let document = await panel.$('.jp-Notebook');
 
+      //JL3 ToDo : jp-cell-toolbar available only in Jl3
       // Wait for the cell toolbar to be visible in code cell.
-      if (file === codeNotebook) {
-        await expect(
-          page.locator(
-            '.jp-Notebook .jp-Cell .jp-cell-toolbar:not(.jp-Toolbar-micro)'
-          )
-        ).toBeVisible();
-      }
+      // if (file === codeNotebook) {
+      //   await expect(
+      //     page.locator(
+      //       '.jp-Notebook .jp-Cell .jp-cell-toolbar:not(.jp-Toolbar-micro)'
+      //     )
+      //   ).toBeVisible();
+      // }
 
+
+      // await page.waitForLoadState('domcontentloaded');
+      await page.waitForLoadState('networkidle')
+      // await page.waitForTimeout(30000)
       expect(await document.screenshot()).toMatchSnapshot(
         `${file.replace('.', '-')}.png`
       );
@@ -159,7 +166,7 @@ test.describe('Benchmark', () => {
       const fromTime = await perf.measure(async () => {
         await page.dblclick(`#filebrowser >> text=${textFile}`);
         await page.waitForSelector(
-          `div[role="main"] >> .lm-DockPanel-tabBar >> text=${path.basename(
+          `.lm-DockPanel-tabBar >> text=${path.basename(
             textFile
           )}`
         );
@@ -181,12 +188,12 @@ test.describe('Benchmark', () => {
       // Switch back
       const toTime = await perf.measure(async () => {
         await page.click(
-          `div[role="main"] >> .lm-DockPanel-tabBar >> text=${file}`
+          `.lm-DockPanel-tabBar >> text=${file}`
         );
       });
 
       // Check the notebook is correctly opened
-      panel = await page.$('[role="main"] >> .jp-NotebookPanel');
+      panel = await page.$('.jp-NotebookPanel');
       // Get only the document node to avoid noise from kernel and debugger in the toolbar
       document = await panel.$('.jp-Notebook');
       expect(await document.screenshot()).toMatchSnapshot(
