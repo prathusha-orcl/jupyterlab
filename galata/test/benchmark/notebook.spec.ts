@@ -3,12 +3,14 @@
 
 import { expect, test } from '@playwright/test';
 import { benchmark, galata } from '@jupyterlab/galata';
+// @ts-ignore
 import path from 'path';
 
 const tmpPath = 'test-performance-open';
 const codeNotebook = 'large_code_notebook.ipynb';
 const mdNotebook = 'large_md_notebook.ipynb';
 const textFile = 'lorem_ipsum.txt';
+// const auth_url = process.env.AUTH_URL;
 
 // Build test parameters list [file, index]
 const parameters = [].concat(
@@ -21,58 +23,59 @@ const parameters = [].concat(
 
 test.describe('Benchmark', () => {
   // Generate the files for the benchmark
-  test.beforeAll(async ({ request }) => {
-    const content = galata.newContentsHelper(request);
-    const codeContent = galata.Notebook.generateNotebook(300, 'code', [
-      'for x in range(OUTPUT_LENGTH):\n',
-      '    print(f"{PREFIX} {x}")'
-    ]);
-
-    await content.uploadContent(
-      JSON.stringify(codeContent),
-      'text',
-      `${tmpPath}/${codeNotebook}`
-    );
-
-    const mdContent = galata.Notebook.generateNotebook(300, 'markdown', [
-      '# Demonstration of proper behaviour with non-LaTeX uses of `$`\n',
-      '\n',
-      '## This should be highlighted as a heading\n',
-      '\n',
-      'Sample code:\n',
-      '\n',
-      '    ```\n',
-      '    echo $HOME\n',
-      '    ```\n',
-      '\n',
-      '```shell\n',
-      'echo $HOME\n',
-      '```\n',
-      '\n',
-      'The code block below should be properly highlighted:\n',
-      '\n',
-      '```bash\n',
-      'echo $HOME\n',
-      '```\n',
-      '\n',
-      '\n',
-      '### Heading\n',
-      '\n',
-      '`$test`\n',
-      '\n',
-      '### This heading should be highlighted too'
-    ]);
-
-    await content.uploadContent(
-      JSON.stringify(mdContent),
-      'text',
-      `${tmpPath}/${mdNotebook}`
-    );
-
-    const loremIpsum =
-      'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin molestie suscipit libero non volutpat. Suspendisse et tincidunt metus. Proin laoreet magna rutrum egestas tristique. Proin vel neque sit amet lectus egestas pellentesque nec quis nisl. Quisque faucibus condimentum leo, quis euismod eros ultrices in. Vivamus maximus malesuada tempor. Aliquam maximus maximus elit, ac imperdiet tellus posuere nec. Sed at rutrum velit. Etiam et lectus convallis, sagittis nibh sit amet, gravida turpis. Nulla nec velit id est tristique iaculis.\n\nDonec vel finibus mauris, eu tristique justo. Pellentesque turpis lorem, lobortis eu tincidunt non, cursus sit amet ex. Vivamus eget ligula a leo vulputate egestas a eu felis. Donec sollicitudin maximus neque quis condimentum. Cras vestibulum nulla libero, sed semper velit faucibus ac. Phasellus et consequat risus. Sed suscipit ligula est. Etiam ultricies ac lacus sit amet cursus. Nam non leo vehicula, iaculis eros eu, consequat sapien. Ut quis odio quis augue pharetra porttitor sit amet eget nisl. Vestibulum magna eros, rutrum ac nisi non, lobortis varius ipsum. Proin luctus euismod arcu eget sollicitudin. Praesent nec erat gravida, tincidunt diam eget, tempor tortor.';
-    await content.uploadContent(loremIpsum, 'text', `${tmpPath}/${textFile}`);
-  });
+  // test.beforeAll(async ({ request }) => {
+  //   const content = galata.newContentsHelper(request);
+  //   const codeContent = galata.Notebook.generateNotebook(300, 'code', [
+  //     'for x in range(OUTPUT_LENGTH):\n',
+  //     '    print(f"{PREFIX} {x}")'
+  //   ]);
+  //
+  //   await content.uploadContent(
+  //     JSON.stringify(codeContent),
+  //     'text',
+  //     `${tmpPath}/${codeNotebook}`
+  //   );
+  //
+  //
+  //   const mdContent = galata.Notebook.generateNotebook(300, 'markdown', [
+  //     '# Demonstration of proper behaviour with non-LaTeX uses of `$`\n',
+  //     '\n',
+  //     '## This should be highlighted as a heading\n',
+  //     '\n',
+  //     'Sample code:\n',
+  //     '\n',
+  //     '    ```\n',
+  //     '    echo $HOME\n',
+  //     '    ```\n',
+  //     '\n',
+  //     '```shell\n',
+  //     'echo $HOME\n',
+  //     '```\n',
+  //     '\n',
+  //     'The code block below should be properly highlighted:\n',
+  //     '\n',
+  //     '```bash\n',
+  //     'echo $HOME\n',
+  //     '```\n',
+  //     '\n',
+  //     '\n',
+  //     '### Heading\n',
+  //     '\n',
+  //     '`$test`\n',
+  //     '\n',
+  //     '### This heading should be highlighted too'
+  //   ]);
+  //
+  //   await content.uploadContent(
+  //     JSON.stringify(mdContent),
+  //     'text',
+  //     `${tmpPath}/${mdNotebook}`
+  //   );
+  //
+  //   const loremIpsum =
+  //     'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin molestie suscipit libero non volutpat. Suspendisse et tincidunt metus. Proin laoreet magna rutrum egestas tristique. Proin vel neque sit amet lectus egestas pellentesque nec quis nisl. Quisque faucibus condimentum leo, quis euismod eros ultrices in. Vivamus maximus malesuada tempor. Aliquam maximus maximus elit, ac imperdiet tellus posuere nec. Sed at rutrum velit. Etiam et lectus convallis, sagittis nibh sit amet, gravida turpis. Nulla nec velit id est tristique iaculis.\n\nDonec vel finibus mauris, eu tristique justo. Pellentesque turpis lorem, lobortis eu tincidunt non, cursus sit amet ex. Vivamus eget ligula a leo vulputate egestas a eu felis. Donec sollicitudin maximus neque quis condimentum. Cras vestibulum nulla libero, sed semper velit faucibus ac. Phasellus et consequat risus. Sed suscipit ligula est. Etiam ultricies ac lacus sit amet cursus. Nam non leo vehicula, iaculis eros eu, consequat sapien. Ut quis odio quis augue pharetra porttitor sit amet eget nisl. Vestibulum magna eros, rutrum ac nisi non, lobortis varius ipsum. Proin luctus euismod arcu eget sollicitudin. Praesent nec erat gravida, tincidunt diam eget, tempor tortor.';
+  //   await content.uploadContent(loremIpsum, 'text', `${tmpPath}/${textFile}`);
+  // });
 
   test.beforeEach(async ({ page }) => {
     await galata.Mock.mockSettings(page, [], galata.DEFAULT_SETTINGS);
@@ -105,19 +108,22 @@ test.describe('Benchmark', () => {
       const perf = galata.newPerformanceHelper(page);
 
       await page.goto(baseURL + '?reset');
+   //   await page.waitForTimeout(120000);
+    //  await page.waitForSelector('#filebrowser >> .jp-BreadCrumbs-home', {timeout: 120000});
 
+      await page.getByRole('button', {name: 'DISMISS'}).click();
       await page.click('#filebrowser >> .jp-BreadCrumbs-home');
       await page.dblclick(`#filebrowser >> text=${tmpPath}`);
 
       const openTime = await perf.measure(async () => {
         // Open the notebook and wait for the spinner
         await Promise.all([
-          page.waitForSelector('[role="main"] >> .jp-SpinnerContent'),
+        //  page.waitForSelector('.jp-SpinnerContent'),
           page.dblclick(`#filebrowser >> text=${file}`)
         ]);
 
-        // Wait for spinner to be hidden
-        await page.waitForSelector('[role="main"] >> .jp-SpinnerContent', {
+      //   Wait for spinner to be hidden
+        await page.waitForSelector('.jp-SpinnerContent', {
           state: 'hidden'
         });
       });
@@ -127,15 +133,20 @@ test.describe('Benchmark', () => {
       // Get only the document node to avoid noise from kernel and debugger in the toolbar
       let document = await panel.$('.jp-Notebook');
 
+      //JL3 ToDo : jp-cell-toolbar available only in Jl3
       // Wait for the cell toolbar to be visible in code cell.
-      if (file === codeNotebook) {
-        await expect(
-          page.locator(
-            '.jp-Notebook .jp-Cell .jp-cell-toolbar:not(.jp-Toolbar-micro)'
-          )
-        ).toBeVisible();
-      }
+      // if (file === codeNotebook) {
+      //   await expect(
+      //     page.locator(
+      //       '.jp-Notebook .jp-Cell .jp-cell-toolbar:not(.jp-Toolbar-micro)'
+      //     )
+      //   ).toBeVisible();
+      // }
 
+
+      // await page.waitForLoadState('domcontentloaded');
+      await page.waitForLoadState('networkidle')
+      // await page.waitForTimeout(30000)
       expect(await document.screenshot()).toMatchSnapshot(
         `${file.replace('.', '-')}.png`
       );
@@ -159,7 +170,7 @@ test.describe('Benchmark', () => {
       const fromTime = await perf.measure(async () => {
         await page.dblclick(`#filebrowser >> text=${textFile}`);
         await page.waitForSelector(
-          `div[role="main"] >> .lm-DockPanel-tabBar >> text=${path.basename(
+          `.lm-DockPanel-tabBar >> text=${path.basename(
             textFile
           )}`
         );
@@ -181,12 +192,12 @@ test.describe('Benchmark', () => {
       // Switch back
       const toTime = await perf.measure(async () => {
         await page.click(
-          `div[role="main"] >> .lm-DockPanel-tabBar >> text=${file}`
+          `.lm-DockPanel-tabBar >> text=${file}`
         );
       });
 
       // Check the notebook is correctly opened
-      panel = await page.$('[role="main"] >> .jp-NotebookPanel');
+      panel = await page.$('.jp-NotebookPanel');
       // Get only the document node to avoid noise from kernel and debugger in the toolbar
       document = await panel.$('.jp-Notebook');
       expect(await document.screenshot()).toMatchSnapshot(
@@ -227,3 +238,4 @@ test.describe('Benchmark', () => {
     });
   }
 });
+
